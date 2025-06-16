@@ -128,7 +128,7 @@ function OurTeam() {
                             {/* Close Button */}
                             <button
                                 onClick={closeModal}
-                                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl font-light focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full transition-colors duration-200"
+                                className="absolute top-4 right-4 text-blue-700  hover:text-red-600 text-5xl font-light  transition-colors duration-200"
                             >
                                 ×
                             </button>

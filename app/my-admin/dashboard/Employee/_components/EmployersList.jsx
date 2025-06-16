@@ -86,7 +86,8 @@ function EmployersList({ employers, setEmployers, loading, error }) {
 
 
     const handleEdit = (employer) => {
-        const transformedProjects = employer.projects.map((proj) => ({
+        // Transform stored description string into array
+        const transformedProjects = (employer.projects || []).map(proj => ({
             ...proj,
             description:
                 typeof proj.description === 'string'
@@ -116,8 +117,7 @@ function EmployersList({ employers, setEmployers, loading, error }) {
                 ? transformedProjects
                 : [{ projectName: '', client: '', teamSize: '', technology: '', description: [''] }],
         });
-
-        setEditingEmployer(employer.id); // or employer._id if you use Mongo
+        setEditingEmployer(employer.id); // or employer._id depending on your ID field
     };
 
 
@@ -259,8 +259,7 @@ function EmployersList({ employers, setEmployers, loading, error }) {
         e.preventDefault();
         setIsSubmitting(true);
 
-        const formDataToSubmit = new FormData();
-
+        // Clean arrays
         const cleanedFormData = {
             ...formData,
             skills: formData.skills.map(item => item.trim()).filter(Boolean),
@@ -270,9 +269,15 @@ function EmployersList({ employers, setEmployers, loading, error }) {
             experiences: formData.experiences.filter(e => e.company || e.jobRole || e.jobDescription),
             projects: formData.projects
                 .filter(p => p.projectName || p.client || p.teamSize || p.technology || (Array.isArray(p.description) && p.description.some(d => d.trim())))
-                .map(p => ({ ...p, description: p.description?.filter(d => d.trim()) })),
+                .map(p => ({
+                    ...p,
+                    description: Array.isArray(p.description)
+                        ? p.description.filter(d => d.trim())
+                        : [],
+                })),
         };
 
+        const formDataToSubmit = new FormData();
         for (const [key, value] of Object.entries(cleanedFormData)) {
             if (['projects', 'education', 'experiences'].includes(key)) {
                 formDataToSubmit.append(key, JSON.stringify(value));
@@ -282,7 +287,6 @@ function EmployersList({ employers, setEmployers, loading, error }) {
                 formDataToSubmit.append(key, value);
             }
         }
-
         if (photo) {
             formDataToSubmit.append('photo', photo);
         }
@@ -291,32 +295,27 @@ function EmployersList({ employers, setEmployers, loading, error }) {
             const res = await axios.put(`/api/employees/${editingEmployer}`, formDataToSubmit, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-
-            if (res.status === 200 && res.data?.success && res.data?.updatedEmployer) {
+            if (res.status === 200 && res.data.success && res.data.updatedEmployer) {
                 toast.success('Details Updated Successfully', {
-                    position: 'top-center',
-                    theme: 'colored',
-                    transition: Bounce,
+                    position: 'top-center', theme: 'colored', transition: Bounce,
                 });
 
-                // Update full list
-                setEmployers((prev) =>
-                    prev.map((emp) =>
-                        emp.id === editingEmployer || emp._id === editingEmployer
-                            ? { ...emp, ...res.data.updatedEmployer }
+                const updated = res.data.updatedEmployer;
+
+                // Update list
+                setEmployers(prev =>
+                    prev.map(emp =>
+                        (emp.id === editingEmployer || emp._id === editingEmployer)
+                            ? { ...emp, ...updated }
                             : emp
                     )
                 );
-
-                // ✅ Update selectedEmployer so modal gets new data
+                // If resume modal is open, update its data so it shows new description immediately
                 if (selectedEmployer && (selectedEmployer.id === editingEmployer || selectedEmployer._id === editingEmployer)) {
-                    setSelectedEmployer((prev) => ({
-                        ...prev,
-                        ...res.data.updatedEmployer,
-                    }));
+                    setSelectedEmployer(prev => ({ ...prev, ...updated }));
                 }
 
-                // Reset
+                // Reset form and close modal
                 setEditingEmployer(null);
                 setPhoto(null);
                 setFormData({
@@ -329,21 +328,16 @@ function EmployersList({ employers, setEmployers, loading, error }) {
                     projects: [{ projectName: '', client: '', teamSize: '', technology: '', description: [''] }],
                     achievements: [''],
                 });
-
                 document.getElementById('edit_modal')?.close?.();
             } else {
                 toast.error('Failed to update details ❌', {
-                    position: 'top-center',
-                    theme: 'colored',
-                    transition: Bounce,
+                    position: 'top-center', theme: 'colored', transition: Bounce,
                 });
             }
         } catch (error) {
             console.error('Update Error:', error);
             toast.error('An error occurred while updating', {
-                position: 'top-center',
-                theme: 'colored',
-                transition: Bounce,
+                position: 'top-center', theme: 'colored', transition: Bounce,
             });
         } finally {
             setIsSubmitting(false);
@@ -563,7 +557,6 @@ function EmployersList({ employers, setEmployers, loading, error }) {
                                     </ul>
                                 </Section>
 
-                                {/* Projects */}
                                 {/* Projects Section */}
                                 <Section title="🚀 Projects" className="bg-gray-50 p-6 rounded-lg shadow-sm">
                                     <ul className="space-y-6">
@@ -576,13 +569,14 @@ function EmployersList({ employers, setEmployers, loading, error }) {
                                                     <p><b>Technology:</b> {proj.technology}</p>
                                                     <div>
                                                         <p className="font-semibold text-gray-800">Description:</p>
-                                                        <ul className="list-disc ml-6 space-y-1 text-gray-700">
-                                                            {(proj.description || "")
-                                                                .split("|||")
-                                                                .filter(d => d.trim() !== "")
-                                                                .map((desc, idx) => (
-                                                                    <li key={idx}>{desc.trim()}</li>
-                                                                ))}
+                                                        <ul className="list-disc ml-6 mt-1 space-y-1">
+                                                            {Array.isArray(proj.description)
+                                                                ? proj.description.map((desc, idx) => (
+                                                                    desc && <li key={idx}>{desc}</li>
+                                                                ))
+                                                                : proj.description
+                                                                    .split("|||")
+                                                                    .map((desc, idx) => desc.trim() && <li key={idx}>{desc.trim()}</li>)}
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -763,7 +757,7 @@ function EmployersList({ employers, setEmployers, loading, error }) {
                             ))}
 
                             {/* Photo */}
-                            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+                            {/* <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                                 <label className="font-semibold text-gray-800 text-lg">Photo</label>
                                 <input type="file" accept="image/*" className="file-input file-input-bordered w-full bg-gray-100 text-gray-800 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     onChange={handleFileChange} />
@@ -772,11 +766,11 @@ function EmployersList({ employers, setEmployers, loading, error }) {
                                         <img src={URL.createObjectURL(photo)} alt="Preview" className="w-28 h-28 object-cover rounded-md border border-gray-200 shadow-sm" />
                                     </div>
                                 )}
-                            </div>
+                            </div> */}
 
                             {/* Actions */}
                             <div className="flex gap-3 justify-center">
-                                <button type="submit" className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200 disabled:bg-blue-400" disabled={isSubmitting}>
+                                <button type="submit" className="px-6 py-2 rounded-md  bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 disabled:from-purple-800 disabled:to-indigo-800  disabled:bg-blue-400" disabled={isSubmitting}>
                                     {isSubmitting ? 'Updating...' : 'Update'}
                                 </button>
                                 <button type="button" className="px-6 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-700 transition-colors duration-200" onClick={() => setEditingEmployer(null)}>

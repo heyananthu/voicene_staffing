@@ -620,7 +620,7 @@ function Page() {
               </div>
 
               {/* Photo Upload */}
-              <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              {/* <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                 <label className="text-lg font-semibold text-gray-800 mb-3">Photo</label>
                 <input
                   type="file"
@@ -633,7 +633,7 @@ function Page() {
                     <img src={URL.createObjectURL(form.photo)} alt="Preview" className="w-28 h-28 object-cover rounded-md border border-gray-200 shadow-sm" />
                   </div>
                 )}
-              </div>
+              </div> */}
 
               {/* Actions */}
               <div className="flex gap-3 justify-center">
