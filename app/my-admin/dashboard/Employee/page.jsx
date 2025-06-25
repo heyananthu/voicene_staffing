@@ -172,6 +172,27 @@ function Page() {
 
   const handleCloseModal = () => {
     document.getElementById('my_modal_1').close();
+    setForm({
+      name: '',
+      email: '',
+      contact: '',
+      experiences: [{ company: '', jobRole: '', jobDescription: '' }],
+      position: '',
+      totalexperience: '',
+      skills: [''],
+      projects: [{ projectName: '', client: '', teamSize: '', technology: '', description: [''] }],
+      softskills: [''],
+      education: [{ school: '', course: '', year: '' }],
+      achievements: [''],
+      gender: '',
+      nationality: '',
+      dob: '',
+      doj: '',
+      language: '',
+      photo: null,
+    });
+    setEditingId(null);
+    setIsDuplicate(false);
   };
 
   const handleSubmit = async (e) => {
@@ -240,9 +261,10 @@ function Page() {
 
       if (response.status === 200 || response.status === 201) {
         toast.success(editingId ? 'Details Updated' : 'New Details Added');
-        await fetchEmployers();
         handleCloseModal();
         setIsSubmitting(false);
+        await fetchEmployers();
+
 
         setForm({
           name: '',
@@ -269,12 +291,9 @@ function Page() {
     } catch (err) {
       if (err.response && err.response.status === 409) {
         setIsDuplicate(true);
-        toast.error('Details Already Exist', {
-          position: 'top-center',
-          theme: 'colored',
-          transition: Bounce,
-        });
+        // toast.error('Email Already Exists');
       } else {
+        console.error("POST Error:", err);
         setError(true);
         toast.error('Error submitting form', {
           position: 'top-center',
@@ -341,7 +360,7 @@ function Page() {
 
       <div className="flex justify-end mb-6 max-w-screen-xl mx-auto">
         <motion.button
-          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-6 rounded-lg font-medium shadow-md hover:shadow-xl transition-all duration-300 mt-12"
+          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-6 rounded-lg font-medium shadow-md hover:shadow-xl transition-all duration-300 mt-12 cursor-pointer" 
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => document.getElementById('my_modal_1').showModal()}
@@ -634,16 +653,25 @@ function Page() {
                   </div>
                 )}
               </div> */}
+              <div>
+                {isDuplicate ? <p className="text-rose-600 text-sm mt-1">Email Already Exists</p> : null}
+              </div>
 
               {/* Actions */}
               <div className="flex gap-3 justify-center">
                 <motion.button
                   type="submit"
-                  className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200 disabled:bg-blue-400"
+                  className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200 disabled:bg-blue-400 flex items-center justify-center gap-2"
                   disabled={isSubmitting}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
+                  {isSubmitting && (
+                    <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                  )}
                   {isSubmitting ? 'Submitting...' : 'Submit'}
                 </motion.button>
                 <motion.button

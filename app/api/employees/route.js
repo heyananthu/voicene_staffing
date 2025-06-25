@@ -110,6 +110,15 @@ export async function POST(req) {
         return NextResponse.json({ success: true, employer: insertedEmployer }, { status: 201 });
     } catch (err) {
         console.error("POST Error:", err);
+
+        // Check for duplicate email error in various places
+        const errorCode = err.code || err.original?.code || err.cause?.code;
+        if (errorCode === '23505') {
+            return NextResponse.json(
+                { success: false, message: "Email already exists" },
+                { status: 409 }
+            );
+        }
         return NextResponse.json({ success: false, message: err.message }, { status: 500 });
     }
 }
