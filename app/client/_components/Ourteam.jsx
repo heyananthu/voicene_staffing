@@ -56,7 +56,7 @@ function OurTeam() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-12 max-w-screen-2xl mx-auto">
+        <div className="h-fit bg-gradient-to-b from-gray-50 to-gray-100 py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-12 max-w-screen-2xl mx-auto">
             <Animatedcard>
                 <h1 className="text-center font-extrabold text-4xl sm:text-5xl lg:text-6xl mb-10 text-gray-900 tracking-tight">
                     Meet Our Team

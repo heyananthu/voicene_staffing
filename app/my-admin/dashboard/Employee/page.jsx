@@ -346,7 +346,7 @@ function Page() {
   };
 
   return (
-    <div className="w-full h-screen bg-white py-16 px-4 sm:px-6 lg:px-8 p-12 relative "  suppressHydrationWarning>
+    <div className="min-h-screen w-full bg-white py-16 px-4 sm:px-6 lg:px-8 relative" suppressHydrationWarning>
       <ToastContainer
         position="top-center"
         autoClose={3000}

@@ -3,7 +3,7 @@ import Navbar from '@/app/my-admin/_components/Navbar'
 import Sidebar from '@/app/my-admin/_components/Sidebar'
 function layout({ children }) {
     return (
-        <div className=''>
+        <div className='bg-white'>
             <Navbar />
             <div className=''>
                 <Sidebar />
