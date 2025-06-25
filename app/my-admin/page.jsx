@@ -62,7 +62,7 @@ function Login() {
       {/* Glassmorphism Login Card */}
       <div className="relative z-10 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 w-full max-w-md shadow-2xl">
         <h1 className="text-3xl font-bold text-center text-white mb-8 tracking-wide">
-          Admin Portal
+          Voicene Admin
         </h1>
 
         <form onSubmit={loginHandler} className="space-y-6">
@@ -116,9 +116,9 @@ function Login() {
           </button>
         </form>
 
-        <p className="text-center text-gray-300 text-sm mt-6">
+        {/* <p className="text-center text-gray-300 text-sm mt-6">
           Secured Admin Access
-        </p>
+        </p> */}
       </div>
 
       <ToastContainer
